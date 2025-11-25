@@ -16,10 +16,11 @@
 #systemctl restart nginxa
 
 
-- hosts: frontend
+- name: frontend setup
+  hosts: all
   become: true
   tasks:
     - name: Install nginx 1.24
-      yum:
-        name: nginx
-        state: present
+      ansible.builtin.dnf:
+       name: '@nginx:1.24'
+       state: present
