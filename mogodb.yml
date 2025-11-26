@@ -7,7 +7,7 @@
 #systemctl enable mongod
 #systemctl restart mongod
 
-- name: frontend setup
+- name: MongoDB setup
   hosts: all
   become: true
   tasks:
