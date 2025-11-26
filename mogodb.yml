@@ -24,11 +24,11 @@
     - name: Replace "old_value" with "new_value" in /etc/config.conf
       ansible.builtin.replace:
         path: /etc/mongod.conf
-        regexp: '127.0.0.1'
-        replace: '0.0.0.0'
+        regexp: 127.0.0.1
+        replace: 0.0.0.0
 
     - name: Start MongoDB service
       ansible.builtin.systemd_service:
-        state: restarted
+        state: restart
         name: mogodb
         enabled: true
