@@ -75,7 +75,7 @@
         state: present
 
     - name: Load Master Data
-      ansible.builtin.shell: mongosh --host mongodb-dev.rdevopsb87.online </app/db/master-data.js
+      ansible.builtin.shell: mongosh --host mongodb-dev.adityadevops.online </app/db/master-data.js
 
     - name: Start Catalogue service
       ansible.builtin.systemd_service:
