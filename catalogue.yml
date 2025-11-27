@@ -71,15 +71,5 @@
 
     - name: Install MognoDB Shell
       ansible.builtin.dnf:
-        name: mongodb-mongosh
-        state: present
-
-    - name: Load Master Data
-      ansible.builtin.shell: mongosh --host mongodb-dev.adityadevops.online </app/db/master-data.js
-
-    - name: Start Catalogue service
-      ansible.builtin.systemd_service:
-        state: restarted
-        name: catalogue
-        enabled: true
-        daemon_reload: true
+          name: mongodb-mongosh
+          state: present

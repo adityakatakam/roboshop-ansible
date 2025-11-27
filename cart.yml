@@ -1,0 +1,61 @@
+#dnf module disable nodejs -y
+#dnf module enable nodejs:20 -y
+#dnf install nodejs -y
+#
+#cp cart.service /etc/systemd/system/cart.service
+#
+#useradd roboshop
+#mkdir /app
+#curl -L -o /tmp/cart.zip https://roboshop-artifacts.s3.amazonaws.com/cart-v3.zip
+#cd /app
+#unzip /tmp/cart.zip
+#
+#cd /app
+#npm install
+#
+#systemctl daemon-reload
+#
+#systemctl enable cart
+#systemctl start cart
+#
+#
+
+- name: Cart Setup
+  hosts: all
+  become: true
+  tasks:
+    - name: Install NodeJS 20
+      ansible.builtin.dnf:
+        name: '@nodejs:20'
+        state: present
+
+    - name: Copy cart service file
+      ansible.builtin.copy:
+        src: cart.services
+        dest: /etc/systemd/system/cart.service
+
+    - name: Add roboshop application user
+      ansible.builtin.user:
+        name: roboshop
+
+    - name: Create app directory
+      ansible.builtin.file:
+        path: /app
+        state: directory
+
+    - name: download and extract cart content
+      ansible.builtin.unarchive:
+        src: https://roboshop-artifacts.s3.amazonaws.com/cart-v3.zip
+        dest: /app
+        remote_src: yes
+
+    - name: Install packages based on package.json.
+      community.general.npm:
+        path: /app
+
+    - name: Start Catalogue service
+      ansible.builtin.systemd_service:
+        state: restarted
+        name: catalogue
+        enabled: true
+        daemon_reload: true

@@ -1,0 +1,74 @@
+#dnf install golang -y
+#
+#useradd roboshop
+#
+#cp dispatch.service /etc/systemd/system/dispatch.service
+#mkdir /app
+#
+#curl -L -o /tmp/dispatch.zip https://roboshop-artifacts.s3.amazonaws.com/dispatch-v3.zip
+#cd /app
+#unzip /tmp/dispatch.zip
+#
+#cd /app
+#go mod init dispatch
+#go get
+#go build
+#
+
+- name: Golang Setup
+  hosts: all
+  become: true
+  tasks:
+    - name: Install Golang
+      ansible.builtin.dnf:
+        name: golang
+        state: present
+
+    - name: Copy dispatch service file
+      ansible.builtin.copy:
+        src: dispatch.services
+        dest: /etc/systemd/system/dispatch.service
+
+    - name: Add roboshop application user
+      ansible.builtin.user:
+        name: roboshop
+
+    - name: Create app directory
+      ansible.builtin.file:
+        path: /app
+        state: directory
+
+    - name: download and extract cart content
+      ansible.builtin.unarchive:
+        src: https://roboshop-artifacts.s3.amazonaws.com/dispatch-v3.zip
+        dest: /app
+        remote_src: yes
+
+    - name: Install packages based on package.json.
+      community.general.npm:
+        path: /app
+
+    - name: Initialize go module
+      ansible.builtin.command:
+        cmd: go mod init dispatch
+        chdir: /app
+      args:
+        creates: /app/go.mod
+
+    - name: Download Go dependencies
+      ansible.builtin.command:
+        cmd: go get ./...
+        chdir: /app
+
+    - name: Build Go binary
+      ansible.builtin.command:
+        cmd: go build -o dispatch
+        chdir: /app
+
+    - name: Start Catalogue service
+      ansible.builtin.systemd_service:
+        state: restarted
+        name: catalogue
+        enabled: true
+        daemon_reload: true
+
